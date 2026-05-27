@@ -4,4 +4,4 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({ mensaje: "✅ Conexión Exitosa: Backend Innovatech respondiendo" }));
 });
-server.listen(5000, () => console.log('Backend en puerto 5000'));
+server.listen(5000, '0.0.0.0', () => console.log('Backend en puerto 5000'));
