@@ -38,3 +38,4 @@ jobs:
             # 5. COMANDO DE ESPIONAJE (Esto saldrá en el log de GitHub)
             echo "--- ESTADO DE LOS CONTENEDORES ---"
             sudo docker ps
+            # Ultima modificacion: 2024
