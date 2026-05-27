@@ -1,7 +1,13 @@
-FROM node:18
+FROM node:18-alpine
+
+# Crear carpeta de trabajo
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
+
+# Copiar SOLO el archivo del servidor
+COPY server.js .
+
+# Exponer el puerto
 EXPOSE 5000
+
+# Arrancar el servidor
 CMD ["node", "server.js"]
