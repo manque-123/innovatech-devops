@@ -17,9 +17,14 @@ jobs:
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # Entrar o clonar
             if [ ! -d "innovatech-devops" ]; then
               git clone https://github.com/manque-123/innovatech-devops.git
             fi
             cd innovatech-devops
             git pull origin main
-            sudo docker-compose up -d --build
+            
+            # Detener lo que esté corriendo y levantar de nuevo
+            sudo docker stop $(sudo docker ps -aq) || true
+            sudo docker rm $(sudo docker ps -aq) || true
+            sudo docker run -d -p 80:80 --name frontend-inno $(sudo docker build -q ./frontend)
