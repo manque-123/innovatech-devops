@@ -1,13 +1,15 @@
-FROM node:18-alpine
-
-# Crear carpeta de trabajo
+# Etapa 1: Build (Construcción)
+FROM node:18-alpine AS builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev
 
-# Copiar SOLO el archivo del servidor
+# Etapa 2: Runtime (Imagen ligera y segura)
+FROM node:18-alpine
+WORKDIR /app
+# Crear usuario no root (Requisito IE1)
+USER node
+COPY --from=builder /app/node_modules ./node_modules
 COPY server.js .
-
-# Exponer el puerto
 EXPOSE 5000
-
-# Arrancar el servidor
 CMD ["node", "server.js"]

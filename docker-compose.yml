@@ -1,18 +1,26 @@
 version: '3.8'
 services:
+  backend:
+    build: ./backend
+    container_name: backend-inno
+    networks:
+      - innovatech-net
+    volumes:
+      - data-persistente:/app/data # CUMPLE IE3: Persistencia
+
   frontend:
     build: ./frontend
+    container_name: frontend-inno
     ports:
-      - "80:80"
+      - "80:80" # Solo el front es público (IE7)
+    networks:
+      - innovatech-net
     depends_on:
       - backend
 
-  backend:
-    build: ./backend
-    ports:
-      - "5000:5000"
-    volumes:
-      - app_logs:/app/logs # Requisito de persistencia (IE3)
+networks:
+  innovatech-net: # Red privada (IE7)
+    driver: bridge
 
 volumes:
-  app_logs:
+  data-persistente:
