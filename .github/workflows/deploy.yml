@@ -17,14 +17,23 @@ jobs:
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Entrar o clonar
+            # 1. Navegar a la carpeta del proyecto o clonar si no existe
             if [ ! -d "innovatech-devops" ]; then
               git clone https://github.com/manque-123/innovatech-devops.git
             fi
             cd innovatech-devops
-            git pull origin main
             
-            # Detener lo que esté corriendo y levantar de nuevo
-            sudo docker stop $(sudo docker ps -aq) || true
-            sudo docker rm $(sudo docker ps -aq) || true
-            sudo docker run -d -p 80:80 --name frontend-inno $(sudo docker build -q ./frontend)
+            # 2. Actualizar el código desde GitHub
+            git pull origin main
+
+            # 3. Limpiar contenedores previos para evitar conflictos
+            sudo docker stop frontend-inno || true
+            sudo docker rm frontend-inno || true
+
+            # 4. Levantar el contenedor de Nginx mapeando tu carpeta frontend
+            # Esto soluciona el error de "Welcome to nginx"
+            sudo docker run -d \
+              --name frontend-inno \
+              -p 80:80 \
+              -v $(pwd)/frontend:/usr/share/nginx/html:ro \
+              nginx:alpine
