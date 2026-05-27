@@ -1,11 +1,7 @@
-# ETAPA 1: Build
-FROM node:18-alpine AS builder
+FROM node:18
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
-
-# ETAPA 2: Run
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app .
-EXPOSE 5000
-CMD ["node", "server.js"]
+EXPOSE 3000
+CMD ["npm", "start"]
