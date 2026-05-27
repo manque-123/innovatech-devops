@@ -17,23 +17,24 @@ jobs:
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Limpieza y despliegue
+            # 1. Limpieza total
+            sudo docker stop frontend-inno backend-inno || true
+            sudo docker rm frontend-inno backend-inno || true
+            
+            # 2. Clonar y entrar
             sudo rm -rf innovatech-devops
             git clone https://github.com/manque-123/innovatech-devops.git
             cd innovatech-devops
 
-            sudo docker stop frontend-inno backend-inno || true
-            sudo docker rm frontend-inno backend-inno || true
-
-            # Backend
+            # 3. Levantar Backend
             cd backend
             sudo docker build -t innovatech-backend .
             sudo docker run -d --name backend-inno -p 5000:5000 innovatech-backend
-            cd ..
+            
+            # 4. Levantar Frontend
+            cd ../frontend
+            sudo docker run -d --name frontend-inno -p 80:80 -v $(pwd):/usr/share/nginx/html:ro nginx:alpine
 
-            # Frontend
-            sudo docker run -d \
-              --name frontend-inno \
-              -p 80:80 \
-              -v $(pwd)/frontend:/usr/share/nginx/html:ro \
-              nginx:alpine
+            # 5. COMANDO DE ESPIONAJE (Esto saldrá en el log de GitHub)
+            echo "--- ESTADO DE LOS CONTENEDORES ---"
+            sudo docker ps
