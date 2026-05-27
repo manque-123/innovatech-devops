@@ -1,26 +1,14 @@
 script: |
-            # 1. Actualizar código
-            if [ ! -d "innovatech-devops" ]; then
-              git clone https://github.com/manque-123/innovatech-devops.git
-            fi
             cd innovatech-devops
             git pull origin main
 
-            # 2. Limpiar contenedores anteriores (Frontend y Backend)
+            # Limpiar versiones anteriores
             sudo docker stop frontend-inno backend-inno || true
             sudo docker rm frontend-inno backend-inno || true
 
-            # 3. Levantar el Backend
-            # Construimos la imagen desde la carpeta backend y la corremos en el puerto 3000
+            # Levantar Backend
             sudo docker build -t innovatech-backend ./backend
-            sudo docker run -d \
-              --name backend-inno \
-              -p 3000:3000 \
-              innovatech-backend
+            sudo docker run -d --name backend-inno -p 3000:3000 innovatech-backend
 
-            # 4. Levantar el Frontend (Nginx)
-            sudo docker run -d \
-              --name frontend-inno \
-              -p 80:80 \
-              -v $(pwd)/frontend:/usr/share/nginx/html:ro \
-              nginx:alpine
+            # Levantar Frontend
+            sudo docker run -d --name frontend-inno -p 80:80 -v $(pwd)/frontend:/usr/share/nginx/html:ro nginx:alpine

@@ -1,9 +1,7 @@
-# ETAPA 1: Construcción (Multi-stage)
-FROM nginx:alpine AS build
-WORKDIR /usr/share/nginx/html
+FROM node:18
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
-
-# ETAPA 2: Ejecución (Mínimo privilegio)
-FROM nginx:alpine
-COPY --from=build /usr/share/nginx/html /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 3000
+CMD ["npm", "start"]
