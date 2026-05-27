@@ -1,16 +1,34 @@
-script: |
-            # 1. Borrar la carpeta vieja para evitar conflictos de rutas
+name: Deploy Innovatech
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Desplegar en AWS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. Limpieza total para evitar errores de carpetas
             sudo rm -rf innovatech-devops
             
-            # 2. Clonar todo fresquito
+            # 2. Clonar repo fresco
             git clone https://github.com/manque-123/innovatech-devops.git
             cd innovatech-devops
 
-            # 3. Limpiar contenedores (por si quedaron vivos)
+            # 3. Limpiar contenedores previos
             sudo docker stop frontend-inno backend-inno || true
             sudo docker rm frontend-inno backend-inno || true
 
-            # 4. Levantar BACKEND (Usando la ruta completa)
+            # 4. Levantar BACKEND
             sudo docker build -t innovatech-backend ./backend
             sudo docker run -d --name backend-inno -p 3000:3000 innovatech-backend
             
