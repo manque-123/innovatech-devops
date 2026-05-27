@@ -3,17 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Innovatech - Frontend</title>
-    <style>body { font-family: sans-serif; text-align: center; padding-top: 50px; }</style>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            padding-top: 50px; 
+            /* CAMBIO DE COLOR: Fondo oscuro profesional */
+            background-color: #0d1117; 
+            color: #c9d1d9;
+        }
+        h1 { 
+            /* CAMBIO DE COLOR: Verde brillante para resaltar el éxito */
+            color: #238636; 
+            font-size: 2.5rem;
+        }
+        #api-data {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #161b22;
+            display: inline-block;
+            border: 1px solid #30363d;
+            font-weight: bold;
+            color: #58a6ff; /* Color azul para los datos */
+        }
+    </style>
 </head>
 <body>
     <h1>🚀 Panel de Control Innovatech</h1>
     <div id="api-data">Cargando datos del backend...</div>
+
     <script>
-        // Esto intenta conectar con el backend para demostrar microservicios
-        fetch('http://' + window.location.hostname + ':5000/api')
+        // Importante: quitamos el /api si tu server.js responde en la raíz '/'
+        fetch('http://' + window.location.hostname + ':5000/')
             .then(res => res.json())
-            .then(data => document.getElementById('api-data').innerText = data.mensaje)
-            .catch(err => document.getElementById('api-data').innerText = "Backend no disponible aún");
+            .then(data => {
+                document.getElementById('api-data').innerText = data.mensaje;
+                document.getElementById('api-data').style.color = "#49fb35"; // Verde Neón si hay éxito
+            })
+            .catch(err => {
+                document.getElementById('api-data').innerText = "Backend no disponible aún";
+                document.getElementById('api-data').style.color = "#f85149"; // Rojo si falla
+            });
     </script>
 </body>
 </html>
