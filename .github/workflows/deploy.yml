@@ -1,0 +1,30 @@
+name: Deploy Innovatech
+on:
+  push:
+    branches: [ main ] # Se activa cuando subes cambios a la rama main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Desplegar en AWS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Entrar a la carpeta o clonarla si es la primera vez
+            if [ ! -d "innovatech-devops" ]; then
+              git clone https://github.com/manque-123/innovatech-devops.git
+            fi
+            cd innovatech-devops
+            
+            # Sincronizar con lo último de GitHub
+            git pull origin main
+            
+            # Levantar todo con Docker Compose
+            sudo docker-compose up -d --build

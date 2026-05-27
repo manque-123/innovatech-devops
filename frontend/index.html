@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Innovatech - Frontend</title>
+    <style>body { font-family: sans-serif; text-align: center; padding-top: 50px; }</style>
+</head>
+<body>
+    <h1>🚀 Panel de Control Innovatech</h1>
+    <div id="api-data">Cargando datos del backend...</div>
+    <script>
+        // Esto intenta conectar con el backend para demostrar microservicios
+        fetch('http://' + window.location.hostname + ':5000/api')
+            .then(res => res.json())
+            .then(data => document.getElementById('api-data').innerText = data.mensaje)
+            .catch(err => document.getElementById('api-data').innerText = "Backend no disponible aún");
+    </script>
+</body>
+</html>
