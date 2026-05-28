@@ -1,61 +1,40 @@
-name: Pipeline Innovatech EP2
-
+name: Deploy Innovatech
 on:
   push:
-    branches: [ main ] # O cambia a 'deploy' si tu guía lo exige estrictamente
+    branches: [ main ]
 
 jobs:
-  build-and-push:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del código
         uses: actions/checkout@v3
 
-      - name: Login en Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # IE4: Construcción y publicación (Push) del Backend
-      - name: Build & Push Backend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/inno-backend:latest
-
-      # IE4: Construcción y publicación (Push) del Frontend
-      - name: Build & Push Frontend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./frontend
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/inno-frontend:latest
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Despliegue en AWS vía SSH
+      - name: Desplegar en AWS via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Entrar a la carpeta o clonar si no existe
-            cd ~/innovatech-devops || git clone https://github.com/${{ github.repository }}.git ~/innovatech-devops
-            cd ~/innovatech-devops
-            git pull origin main
-
-            # Login en Docker dentro de AWS para bajar las imágenes nuevas
-            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-            # IE2: Orquestación con Docker Compose
-            sudo docker-compose down
-            sudo docker-compose pull # Baja las imágenes que acabamos de subir a Docker Hub
-            sudo docker-compose up -d
+            # 1. Limpieza de carpeta para despliegue limpio
+            sudo rm -rf innovatech-devops
             
-            # Limpieza de imágenes viejas para ahorrar espacio
-            sudo docker image prune -f
+            # 2. Clonar el repositorio
+            git clone https://github.com/manque-123/innovatech-devops.git
+            cd innovatech-devops
+
+            # 3. Detener y eliminar contenedores viejos
+            sudo docker stop frontend-inno backend-inno || true
+            sudo docker rm frontend-inno backend-inno || true
+
+            # 4. Levantar BACKEND en el puerto 5000 (según tu código JS)
+            sudo docker build -t innovatech-backend ./backend
+            sudo docker run -d --name backend-inno -p 5000:5000 innovatech-backend
+            
+            # 5. Levantar FRONTEND en el puerto 80
+            sudo docker run -d \
+              --name frontend-inno \
+              -p 80:80 \
+              -v $(pwd)/frontend:/usr/share/nginx/html:ro \
+              nginx:alpine
